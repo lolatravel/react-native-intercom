@@ -19,12 +19,15 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import io.intercom.android.sdk.Intercom;
+import io.intercom.android.sdk.push.IntercomPushClient;
+
 import io.intercom.android.sdk.identity.Registration;
 
 public class IntercomModule extends ReactContextBaseJavaModule {
 
     private static final String MODULE_NAME = "IntercomWrapper";
     public static final String TAG = "Intercom";
+    private final IntercomPushClient intercomPushClient = new IntercomPushClient();
 
     public IntercomModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -142,6 +145,11 @@ public class IntercomModule extends ReactContextBaseJavaModule {
     public void setHMAC(String hmac, String data, Callback callback) {
         Intercom.client().setSecureMode(hmac, data);
         callback.invoke(null, null);
+    }
+
+    @ReactMethod
+    public void setupAPN(String token, Callback callback) {
+        intercomPushClient.sendTokenToIntercom(getApplication(), token);
     }
 
     @ReactMethod
