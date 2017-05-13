@@ -1,6 +1,7 @@
 package com.robinpowered.react.Intercom;
 
 import android.util.Log;
+import android.app.Application;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -149,7 +150,9 @@ public class IntercomModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setupAPN(String token, Callback callback) {
-        intercomPushClient.sendTokenToIntercom(getReactApplicationContext(), token);
+        Application applicationContext = (Application) getReactApplicationContext().getApplicationContext();
+
+        intercomPushClient.sendTokenToIntercom(applicationContext, token);
     }
 
     @ReactMethod
