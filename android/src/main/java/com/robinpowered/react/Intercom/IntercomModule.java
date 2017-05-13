@@ -148,13 +148,8 @@ public class IntercomModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendTokenToIntercom(String token, Object application, Callback callback) {
-        intercomPushClient.sendTokenToIntercom(application, token);
-    }
-
-    @ReactMethod
     public void setupAPN(String token, Callback callback) {
-        intercomPushClient.sendTokenToIntercom(getApplication(), token);
+        intercomPushClient.sendTokenToIntercom(getReactApplicationContext(), token);
     }
 
     @ReactMethod
