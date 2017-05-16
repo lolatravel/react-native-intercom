@@ -177,7 +177,26 @@ RCT_EXPORT_METHOD(setInAppMessageVisibility:(NSString*)visibilityString callback
 // Available as NativeModules.IntercomWrapper.setupAPN
 RCT_EXPORT_METHOD(setupAPN:(NSString*)deviceToken callback:(RCTResponseSenderBlock)callback) {
     NSLog(@"setupAPN with %@", deviceToken);
-    [Intercom setDeviceToken:[deviceToken dataUsingEncoding:NSUTF8StringEncoding]];
+
+    // in our case, deviceToken is a hex string that came from react-native-intercom, not some
+    // utf8-encoded string.  Possibly we can try to decode this as hex and if we get the assertion
+    // error below we can fall back on decoding the way this wrapper used to.
+    NSString *hex = deviceToken;
+    char buf[3];
+    buf[2] = '\0';
+    NSAssert(0 == [hex length] % 2, @"Hex strings should have an even number of digits (%@)", hex);
+    unsigned char *bytes = malloc([hex length]/2);
+    unsigned char *bp = bytes;
+    for (CFIndex i = 0; i < [hex length]; i += 2) {
+      buf[0] = [hex characterAtIndex:i];
+      buf[1] = [hex characterAtIndex:i+1];
+      char *b2 = NULL;
+      *bp++ = strtol(buf, &b2, 16);
+      NSAssert(b2 == buf + 2, @"String should be all hex digits: %@ (bad digit around %ld)", hex, i);
+    }
+    NSData *deviceTokenAsNSData = [NSData dataWithBytesNoCopy:bytes length:[hex length]/2 freeWhenDone:YES];
+
+    [Intercom setDeviceToken:deviceTokenAsNSData];
     callback(@[[NSNull null]]);
 };
 
